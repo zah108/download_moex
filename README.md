@@ -1,239 +1,254 @@
 # MOEX Data Downloader
 
-Скрипт для загрузки исторических дневных данных с Московской биржи (MOEX ISS) и построения непрерывных ценовых рядов фьючерсов. Автоматически скачивает данные за 2021–2026 годы, склеивает последовательные контракты в единые временные ряды и сохраняет результаты в формате TSV.
+A script for downloading historical daily data from the Moscow Exchange (MOEX ISS) and building continuous futures price series. Automatically downloads data for 2021–2026, splices sequential contracts into unified time series, and saves results in TSV format.
 
-## 📊 Что делает скрипт
+## 📊 What the Script Does
 
-Скрипт скачивает дневные данные.
+The script downloads daily data.
 
-### Блок 1: Квартальные фьючерсы
-Загружает и склеивает квартальные фьючерсы в непрерывный ценовой ряд:
+### Block 1: Quarterly Futures
 
-| Тикер | Актив | Описание |
-|-------|-------|----------|
-| **Si** | USD/RUB | Доллар США к российскому рублю |
-| **CR** | CNY/RUB | Китайский юань к российскому рублю |
-| **Ri** | RTS Index | Индекс РТС |
-| **GD** | Gold | Золото (USD за тройскую унцию) |
-| **SV** | Silver | Серебро (USD за тройскую унцию) |
-| **PT** | Platinum | Платина (USD за тройскую унцию) |
-| **SR** | SBER | Фьючерс на акции Сбербанка |
+Downloads and splices quarterly futures into a continuous price series:
 
-**Метод склейки:** календарная склейка по дате экспирации. Каждый контракт торгуется до даты экспирации (3-й четверг месяца поставки), после чего ряд продолжается следующим контрактом.
+| Ticker | Asset | Description |
+| -------- | ------- | ------------- |
+| **Si** | USD/RUB | US Dollar to Russian Ruble |
+| **CR** | CNY/RUB | Chinese Yuan to Russian Ruble |
+| **Ri** | RTS Index | RTS Index |
+| **GD** | Gold | Gold (USD per troy ounce) |
+| **SV** | Silver | Silver (USD per troy ounce) |
+| **PT** | Platinum | Platinum (USD per troy ounce) |
+| **SR** | SBER | Sberbank Stock Futures |
 
-**Квартальные месяцы экспирации:**
-- **H** — март (месяц 3)
-- **M** — июнь (месяц 6)
-- **U** — сентябрь (месяц 9)
-- **Z** — декабрь (месяц 12)
+**Splicing method:** calendar splicing by expiration date. Each contract is traded until its expiration date (3rd Thursday of the delivery month), after which the series continues with the next contract.
 
-**Пример тикера:** `SiH4` = фьючерс на доллар, экспирация в марте 2024 года.
+**Quarterly expiration months:**
 
-### Блок 2: Ежемесячные товарные фьючерсы
-Загружает и склеивает ежемесячные товарные фьючерсы:
+- **H** — March (month 3)
+- **M** — June (month 6)
+- **U** — September (month 9)
+- **Z** — December (month 12)
 
-| Тикер | Актив | Описание |
-|-------|-------|----------|
-| **NG** | Natural Gas | Природный газ (руб за 1000 куб. м) |
-| **BR** | Brent Crude | Нефть Brent (USD за баррель) |
+**Ticker example:** `SiH4` = dollar futures, expiring in March 2024.
 
-**Метод склейки:** динамическая склейка по фактическим данным торгов. Каждый контракт используется до последней доступной даты торгов, после чего ряд продолжается следующим контрактом.
+### Block 2: Monthly Commodity Futures
 
-**Ежемесячные коды месяцев:**
-- **F** — январь, **G** — февраль, **H** — март, **J** — апрель
-- **K** — май, **M** — июнь, **N** — июль, **Q** — август
-- **U** — сентябрь, **V** — октябрь, **X** — ноябрь, **Z** — декабрь
+Downloads and splices monthly commodity futures:
 
-**Пример тикера:** `NGF4` = фьючерс на газ, экспирация в январе 2024 года.
+| Ticker | Asset | Description |
+|--------|-------|-------------|
+| **NG** | Natural Gas | Natural gas (RUB per 1000 cubic meters) |
+| **BR** | Brent Crude | Brent crude oil (USD per barrel) |
 
-### Блок 3: Акции и индексы
-Загружает дневные цены закрытия за 5 лет (2021–2026):
+**Splicing method:** dynamic splicing based on actual trading data. Each contract is used until its last available trading date, after which the series continues with the next contract.
 
-**Акции:**
-- **SBER** — Сбербанк
-- **LKOH** — Лукойл
-- **OZON** — Ozon 
-- **T** — Т-Технологии
-- **MTSS** — МТС
-- **MOEX** — Московская биржа
-- **NLMK** — НЛМК
-- **PLZL** — Полюс Золото
-- **GOLD** — Фонд GOLD
-- **AMNY** — Фонд AMNY (юань)
+**Monthly month codes:**
 
-**Индексы:**
-- **IMOEX** — Индекс Мосбиржи
+- **F** — January, **G** — February, **H** — March, **J** — April
+- **K** — May, **M** — June, **N** — July, **Q** — August
+- **U** — September, **V** — October, **X** — November, **Z** — December
 
-**Источник данных:** дневные свечи (интервал 24 часа) через MOEX ISS API.
+**Ticker example:** `NGF4` = gas futures, expiring in January 2024.
 
-## ▶️ Запуск
+### Block 3: Stocks and Indices
+
+Downloads daily closing prices for 5 years (2021–2026):
+
+**Stocks:**
+
+- **SBER** — Sberbank
+- **LKOH** — Lukoil
+- **OZON** — Ozon
+- **T** — T-Technologies
+- **MTSS** — MTS
+- **MOEX** — Moscow Exchange
+- **NLMK** — NLMK
+- **PLZL** — Polyus Gold
+- **GOLD** — GOLD Fund
+- **AMNY** — AMNY Fund (Yuan)
+
+**Indices:**
+
+- **IMOEX** — MOEX Russia Index
+
+**Data source:** daily candles (24-hour interval) via MOEX ISS API.
+
+## ▶️ Running the Script
 
 ```bash
 python download_moex-1d.py
 ```
 
-При запуске скрипт:
-1. Создаёт папки `txt/` и `logs/` (если их нет)
-2. Загружает данные с MOEX ISS
-3. Склеивает фьючерсы в непрерывные ряды
-4. Сохраняет результаты в TSV файлы
-5. Ведёт лог выполнения в `logs/YYYY-MM-download.log`
+When running, the script:
 
-**Время выполнения:** ~3-5 минут (зависит от скорости интернета и нагрузки на MOEX)
+1. Creates `txt/` and `logs/` folders (if they don't exist)
+2. Downloads data from MOEX ISS
+3. Splices futures into continuous series
+4. Saves results to TSV files
+5. Maintains execution logs in `logs/YYYY-MM-download.log`
 
-## 📁 Структура выходных файлов
+**Execution time:** ~3-5 minutes (depends on internet speed and MOEX load)
 
-### Фьючерсы (непрерывные ряды)
+## 📁 Output File Structure
 
-**Квартальные фьючерсы:**
-- `Si-all-d.txt` — доллар/рубль
-- `CR-all-d.txt` — юань/рубль
-- `Ri-all-d.txt` — индекс РТС
-- `GD-all-d.txt` — золото
-- `SV-all-d.txt` — серебро
-- `PT-all-d.txt` — платина
-- `SR-all-d.txt` — фьючерс Сбербанка
+### Futures (Continuous Series)
 
-**Ежемесячные фьючерсы:**
-- `NG-all-d.txt` — природный газ
-- `BR-all-d.txt` — нефть Brent
+**Quarterly futures:**
 
-### Акции и индексы
+- `Si-all-d.txt` — USD/RUB
+- `CR-all-d.txt` — CNY/RUB
+- `Ri-all-d.txt` — RTS Index
+- `GD-all-d.txt` — Gold
+- `SV-all-d.txt` — Silver
+- `PT-all-d.txt` — Platinum
+- `SR-all-d.txt` — Sberbank futures
 
-- `SBER-d-5y.txt` — Сбербанк
-- `LKOH-d-5y.txt` — Лукойл
-- `IMOEX-d-5y.txt` — индекс Мосбиржи
+**Monthly futures:**
+
+- `NG-all-d.txt` — Natural gas
+- `BR-all-d.txt` — Brent crude oil
+
+### Stocks and Indices
+
+- `SBER-d-5y.txt` — Sberbank
+- `LKOH-d-5y.txt` — Lukoil
+- `IMOEX-d-5y.txt` — MOEX Russia Index
 - `OZON-d-5y.txt` — Ozon
-- `T-d-5y.txt` — Т-Технологии
-- `MTSS-d-5y.txt` — МТС
-- `MOEX-d-5y.txt` — Московская биржа
-- `NLMK-d-5y.txt` — НЛМК
-- `PLZL-d-5y.txt` — Полюс Золото
-- `GOLD-d-5y.txt` — Фонд GOLD
-- `AMNY-d-5y.txt` — Фонд AMNY (юань)
+- `T-d-5y.txt` — T-Technologies
+- `MTSS-d-5y.txt` — MTS
+- `MOEX-d-5y.txt` — Moscow Exchange
+- `NLMK-d-5y.txt` — NLMK
+- `PLZL-d-5y.txt` — Polyus Gold
+- `GOLD-d-5y.txt` — GOLD Fund
+- `AMNY-d-5y.txt` — AMNY Fund (Yuan)
 
-## 📊 Формат данных
+## 📊 Data Format
 
-Все файлы имеют формат **TSV** (Tab-Separated Values):
+All files are in **TSV** (Tab-Separated Values) format:
 
-### Структура файла
+### File Structure
 
 ```
-Date	Close	Ticker
-2021-01-04	73.4500	Si
-2021-01-05	73.1200	Si
-2021-01-06	72.8900	Si
+Date Close Ticker
+2021-01-04 73.4500 Si
+2021-01-05 73.1200 Si
+2021-01-06 72.8900 Si
 ...
 ```
 
-### Колонки
+### Columns
 
-| Колонка | Тип | Описание |
-|---------|-----|----------|
-| **Date** | `YYYY-MM-DD` | Дата торгов (индекс файла) |
-| **Close** | `float` | Цена закрытия |
-| **Ticker** | `string` | Код тикера контракта (для фьючерсов) или базового актива (для акций) |
+| Column | Type | Description |
+| -------- | ------ | ------------- |
+| **Date** | `YYYY-MM-DD` | Trading date (file index) |
+| **Close** | `float` | Closing price |
+| **Ticker** | `string` | Contract ticker code (for futures) or underlying asset (for stocks) |
 
-### Особенности
+### Features
 
-- **Разделитель:** табуляция (`\t`)
-- **Кодировка:** UTF-8
-- **Индекс:** дата в первой колонке
-- **Дубликаты:** удалены (по дате)
-- **Сортировка:** по дате (возрастание)
-- **Диапазон:** 2021-01-01 — 2026-12-31
+- **Delimiter:** tab (`\t`)
+- **Encoding:** UTF-8
+- **Index:** date in the first column
+- **Duplicates:** removed (by date)
+- **Sorting:** by date (ascending)
+- **Range:** 2021-01-01 — 2026-12-31
 
-## 📝 Логи
+## 📝 Logs
 
-Скрипт ведёт детальные логи в папке `logs/`:
+The script maintains detailed logs in the `logs/` folder:
 
-**Имя файла:** `YYYY-MM-download.log` (например, `2026-01-download.log`)
+**File name:** `YYYY-MM-download.log` (e.g., `2026-01-download.log`)
 
-**Содержимое:**
+**Content:**
+
 ```
-[2026-01-15 14:23:45] 🚀 Запуск загрузки с МОЕХ (download)
-🔄 Запуск сплошного скачивания и календарной склейки фьючерса Si...
-📊 Склейка Si завершена. Файл создан: txt/Si-all-d.txt
-🔄 Запуск сплошного скачивания и календарной склейки фьючерса CR...
+[2026-01-15 14:23:45] 🚀 Starting MOEX download
+🔄 Starting continuous download and calendar splicing of Si futures...
+📊 Si splicing completed. File created: txt/Si-all-d.txt
+🔄 Starting continuous download and calendar splicing of CR futures...
 ...
-[2026-01-15 14:28:12] ✅ Загрузка завершена
+[2026-01-15 14:28:12] ✅ Download completed
 ```
 
-**Уровни сообщений:**
-- `🚀` — старт/завершение
-- `🔄` — начало процесса
-- `📊` — успешное завершение
-- `📈` — загрузка акций
-- `⚠️` — предупреждения (пропуск тикера, HTTP ошибки)
-- `❌` — критические ошибки (сетевые, парсинг)
-- `✅` — успешное завершение блока
+**Message levels:**
 
-## ⚙️ Конфигурация
+- `🚀` — start/completion
+- `🔄` — process start
+- `📊` — successful completion
+- `📈` — stock download
+- `⚠️` — warnings (ticker skip, HTTP errors)
+- `❌` — critical errors (network, parsing)
+- `✅` — block completion
 
-Все настройки в словаре `CONFIG` в начале скрипта:
+## ⚙️ Configuration
+
+All settings are in the `CONFIG` dictionary at the beginning of the script:
 
 ```python
 CONFIG = {
-    # Годы для загрузки (включительно)
+    # Years to download (inclusive)
     "target_years": list(range(2021, 2027)),  # [2021, 2022, 2023, 2024, 2025, 2026]
     
-    # Квартальные фьючерсы (7 тикеров)
+    # Quarterly futures (7 tickers)
     "quarterly_assets": ['Si', 'CR', 'Ri', 'GD', 'SV', 'PT', 'SR'],
     "quarterly_months_map": {'H': 3, 'M': 6, 'U': 9, 'Z': 12},
     
-    # Ежемесячные фьючерсы (2 тикера)
+    # Monthly futures (2 tickers)
     "commodity_assets": ['NG', 'BR'],
     "commodity_codes": ['F', 'G', 'H', 'J', 'K', 'M', 'N', 'Q', 'U', 'V', 'X', 'Z'],
     
-    # Акции и индексы (11 тикеров)
+    # Stocks and indices (11 tickers)
     "equity_tickers": ['SBER', 'IMOEX', 'GOLD', 'AMNY', 'LKOH', 'OZON', 'T', 'MTSS', 'MOEX', 'NLMK', 'PLZL'],
     
-    # Пути к папкам
-    "output_folder": "txt",   # Папка для TSV файлов
-    "logs_folder": "logs"     # Папка для логов
+    # Folder paths
+    "output_folder": "txt",   # Folder for TSV files
+    "logs_folder": "logs"     # Folder for logs
 }
 ```
 
-### Изменение конфигурации
+### Modifying Configuration
 
-**Добавить новый фьючерс:**
+**Add a new futures contract:**
+
 ```python
-"quarterly_assets": ['Si', 'CR', 'Ri', 'GD', 'SV', 'PT', 'SR', 'ED'],  # ED — евро/доллар
+"quarterly_assets": ['Si', 'CR', 'Ri', 'GD', 'SV', 'PT', 'SR', 'ED'],  # ED — EUR/USD
 ```
 
-**Изменить диапазон лет:**
+**Change the year range:**
+
 ```python
-"target_years": list(range(2020, 2027)),  # С 2020 года
+"target_years": list(range(2020, 2027)),  # Starting from 2020
 ```
 
-**Изменить папку для результатов:**
+**Change the output folder:**
+
 ```python
-"output_folder": "data/moex"  # Вместо "txt"
+"output_folder": "data/moex"  # Instead of "txt"
 ```
 
-## 📝 Требования
+## 📝 Requirements
 
 - **Python:** 3.8+
 - **requests:** >= 2.28.0
 - **pandas:** >= 1.5.0
 - **urllib3:** >= 1.26.0
 
-## ⚠️ Примечания
+## ⚠️ Notes
 
-- **SSL-верификация:** Скрипт отключает проверку SSL-сертификатов для обхода проблем с сертификатами MOEX. В production-среде рекомендуется настроить корректные CA-сертификаты.
-- **Источник данных:** Публичный API MOEX ISS (https://moex.com/iss/)
-- **Rate limiting:** Скрипт не использует искусственные задержки — MOEX не банит за быстрые запросы
-- **Гарантии:** Данные предоставляются "как есть". Всегда проверяйте корректность данных перед использованием в торговых системах.
+- **SSL verification:** The script disables SSL certificate verification to work around MOEX certificate issues. In production environments, it's recommended to configure proper CA certificates.
+- **Data source:** Public MOEX ISS API (<https://moex.com/iss/>)
+- **Rate limiting:** The script doesn't use artificial delays — MOEX doesn't ban for fast requests
+- **Warranty:** Data is provided "as is". Always verify data correctness before using in trading systems.
 
-## 📄 Лицензия
+## 📄 License
 
-MIT License — свободное использование с указанием авторства.
+MIT License — free use with attribution.
 
-## 📞 Контакты
+## 📞 Contact
 
-Если у вас есть вопросы или предложения, создайте issue в репозитории.
+If you have questions or suggestions, create an issue in the repository.
 
-## 🙏 Благодарности
+## 🙏 Acknowledgments
 
-- **Московская биржа (MOEX)** — за предоставление открытого API ISS
-- **Сообщество Python** — за отличные библиотеки (requests, pandas)
+- **Moscow Exchange (MOEX)** — for providing the open ISS API
+- **Python Community** — for excellent libraries (requests, pandas)
